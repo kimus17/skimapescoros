@@ -168,13 +168,30 @@ function renderFeatures(){
 function allTags(e){return {...(e.tags||{}),osm_type:e.type,osm_id:e.id};}
 function escXml(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 function toGpx(items,title){
- let s='<?xml version="1.0" encoding="UTF-8"?>\\n<gpx version="1.1" creator="SkiMapes COROS World" xmlns="http://www.topografix.com/GPX/1/1">\\n';
- items.forEach(e=>{const t=tags(e),c=geomCoords(e);if(c.length<2)return;
-  const name=t.name||t.ref||title;const desc=Object.entries(t).map(([k,v])=>k+'='+v).join('; ').slice(0,1500);
-  s+='<trk><name>'+escXml(name)+'</name><desc>'+escXml(desc)+'</desc><type>'+escXml(title)+'</type><trkseg>';
-  c.forEach(pt=>{s+='<trkpt lat="'+Number(pt[0]).toFixed(7)+'" lon="'+Number(pt[1]).toFixed(7)+'"></trkpt>';});
-  s+='</trkseg></trk>\\n';
+ let s='<?xml version="1.0" encoding="UTF-8"?>\n';
+ s+='<gpx version="1.1" creator="SkiMapes COROS World" xmlns="http://www.topografix.com/GPX/1/1">\n';
+
+ items.forEach(e=>{
+  const t=tags(e),c=geomCoords(e);
+  if(c.length<2)return;
+
+  const name=t.name||t.ref||title;
+  const desc=Object.entries(t)
+   .map(([k,v])=>k+'='+v)
+   .join('; ')
+   .slice(0,1500);
+
+  s+='<trk><name>'+escXml(name)+'</name>';
+  s+='<desc>'+escXml(desc)+'</desc>';
+  s+='<type>'+escXml(title)+'</type><trkseg>';
+
+  c.forEach(pt=>{
+   s+='<trkpt lat="'+Number(pt[0]).toFixed(7)+'" lon="'+Number(pt[1]).toFixed(7)+'"></trkpt>';
+  });
+
+  s+='</trkseg></trk>\n';
  });
+
  return s+'</gpx>';
 }
 async function makeZip(){
